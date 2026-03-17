@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["src/components/*"],
+      "@screens/*": ["src/screens/*"],
+      "@navigation/*": ["src/navigation/*"],
+      "@theme/*": ["src/theme/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@utils/*": ["src/utils/*"]
+    }
+  },
+  "include": [
+    "App.tsx",
+    "src",
+    "**/*.ts",
+    "**/*.tsx"
+  ]
+}
