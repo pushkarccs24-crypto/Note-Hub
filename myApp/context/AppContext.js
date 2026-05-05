@@ -16,6 +16,7 @@ const initialNotes = [
     pages: 45,
     thumbnail: '#4F46E5',
     status: 'approved',
+    description: 'Comprehensive study materials covering all key topics and concepts.',
   },
   {
     id: '2',
@@ -29,6 +30,7 @@ const initialNotes = [
     pages: 32,
     thumbnail: '#10B981',
     status: 'approved',
+    description: 'Detailed chemical reactions and mechanisms.',
   },
   {
     id: '3',
@@ -42,6 +44,7 @@ const initialNotes = [
     pages: 28,
     thumbnail: '#F59E0B',
     status: 'approved',
+    description: 'Advanced integration techniques with examples.',
   },
   {
     id: '4',
@@ -55,6 +58,7 @@ const initialNotes = [
     pages: 38,
     thumbnail: '#EF4444',
     status: 'approved',
+    description: 'Historical overview of the Renaissance period.',
   },
 ];
 
@@ -97,113 +101,151 @@ export function AppProvider({ children }) {
   };
 
   const login = async (email, password) => {
-    if (email === mockCredentials.admin.email && password === mockCredentials.admin.password) {
-      const adminUser = initialUsers.find((u) => u.role === 'admin');
-      if (adminUser) {
-        setUser(adminUser);
+    try {
+      if (email === mockCredentials.admin.email && password === mockCredentials.admin.password) {
+        const adminUser = initialUsers.find((u) => u.role === 'admin');
+        if (adminUser) {
+          setUser(adminUser);
+          return true;
+        }
+      }
+
+      const mockUser = mockCredentials.users.find((u) => u.email === email && u.password === password);
+      if (mockUser) {
+        const existingUser = users.find((u) => u.email === email);
+        if (existingUser) {
+          setUser(existingUser);
+        } else {
+          const newUser = { id: 'user_' + Date.now(), name: mockUser.name, email: mockUser.email, role: 'user' };
+          setUsers([...users, newUser]);
+          setUser(newUser);
+        }
         return true;
       }
-    }
 
-    const mockUser = mockCredentials.users.find((u) => u.email === email && u.password === password);
-    if (mockUser) {
-      const existingUser = users.find((u) => u.email === email);
-      if (existingUser) {
-        setUser(existingUser);
-      } else {
-        const newUser = { id: 'user_' + Date.now(), name: mockUser.name, email: mockUser.email, role: 'user' };
-        setUsers([...users, newUser]);
-        setUser(newUser);
-      }
-      return true;
+      Alert.alert('Login Failed', 'Invalid email or password');
+      return false;
+    } catch (error) {
+      Alert.alert('Error', 'Login failed. Please try again.');
+      return false;
     }
-
-    Alert.alert('Login Failed', 'Invalid email or password');
-    return false;
   };
 
   const register = async (name, email, password, role) => {
-    if (users.find((u) => u.email === email)) {
-      Alert.alert('Error', 'Email already registered');
+    try {
+      if (users.find((u) => u.email === email)) {
+        Alert.alert('Error', 'Email already registered');
+        return false;
+      }
+
+      const newUser = {
+        id: role === 'admin' ? 'admin_' + Date.now() : 'user_' + Date.now(),
+        name,
+        email,
+        role,
+      };
+
+      setUsers([...users, newUser]);
+      setUser(newUser);
+      return true;
+    } catch (error) {
+      Alert.alert('Error', 'Registration failed. Please try again.');
       return false;
     }
-
-    const newUser = {
-      id: role === 'admin' ? 'admin_' + Date.now() : 'user_' + Date.now(),
-      name,
-      email,
-      role,
-    };
-
-    setUsers([...users, newUser]);
-    setUser(newUser);
-    return true;
   };
 
   const addNote = async (note) => {
-    const newNote = {
-      ...note,
-      id: Date.now().toString(),
-      uploadDate: new Date().toISOString().split('T')[0],
-      likes: 0,
-      downloads: 0,
-      status: 'pending',
-    };
-    setNotes([newNote, ...notes]);
-    Alert.alert('Success', 'Note uploaded successfully!');
+    try {
+      const newNote = {
+        ...note,
+        id: Date.now().toString(),
+        uploadDate: new Date().toISOString().split('T')[0],
+        likes: 0,
+        downloads: 0,
+        status: 'pending',
+      };
+      setNotes([newNote, ...notes]);
+      Alert.alert('Success', 'Note uploaded successfully!');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to upload note.');
+    }
   };
 
   const updateNoteStatus = async (noteId, status) => {
-    setNotes(notes.map((note) => (note.id === noteId ? { ...note, status } : note)));
+    try {
+      setNotes(notes.map((note) => (note.id === noteId ? { ...note, status } : note)));
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update note status.');
+    }
   };
 
   const likeNote = async (noteId) => {
-    if (user?.role === 'guest') return;
+    try {
+      if (user?.role === 'guest') return;
 
-    const isLiked = likedNotes.has(noteId);
+      const isLiked = likedNotes.has(noteId);
 
-    setNotes(
-      notes.map((note) => {
-        if (note.id === noteId) {
-          return { ...note, likes: isLiked ? note.likes - 1 : note.likes + 1 };
-        }
-        return note;
-      })
-    );
+      setNotes(
+        notes.map((note) => {
+          if (note.id === noteId) {
+            return { ...note, likes: isLiked ? note.likes - 1 : note.likes + 1 };
+          }
+          return note;
+        })
+      );
 
-    if (isLiked) {
-      setLikedNotes((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(noteId);
-        return newSet;
-      });
-    } else {
-      setLikedNotes((prev) => new Set(prev).add(noteId));
+      if (isLiked) {
+        setLikedNotes((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(noteId);
+          return newSet;
+        });
+      } else {
+        setLikedNotes((prev) => new Set(prev).add(noteId));
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to like note.');
     }
   };
 
   const downloadNote = async (noteId) => {
-    if (user?.role === 'guest') return;
+    try {
+      if (user?.role === 'guest') return;
 
-    setNotes(notes.map((note) => (note.id === noteId ? { ...note, downloads: note.downloads + 1 } : note)));
-    setDownloadedNotes((prev) => new Set(prev).add(noteId));
+      setNotes(notes.map((note) => (note.id === noteId ? { ...note, downloads: note.downloads + 1 } : note)));
+      setDownloadedNotes((prev) => new Set(prev).add(noteId));
+    } catch (error) {
+      Alert.alert('Error', 'Failed to download note.');
+    }
   };
 
   const addUser = async (userData) => {
-    const newUser = { ...userData, id: Date.now().toString() };
-    setUsers([...users, newUser]);
+    try {
+      const newUser = { ...userData, id: Date.now().toString() };
+      setUsers([...users, newUser]);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to add user.');
+    }
   };
 
   const updateUser = async (userId, updates) => {
-    setUsers(users.map((u) => (u.id === userId ? { ...u, ...updates } : u)));
-    if (user?.id === userId) {
-      setUser({ ...user, ...updates });
+    try {
+      setUsers(users.map((u) => (u.id === userId ? { ...u, ...updates } : u)));
+      if (user?.id === userId) {
+        setUser({ ...user, ...updates });
+      }
+      Alert.alert('Success', 'Profile updated');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update profile.');
     }
-    Alert.alert('Success', 'Profile updated');
   };
 
   const deleteUser = async (userId) => {
-    setUsers(users.filter((u) => u.id !== userId));
+    try {
+      setUsers(users.filter((u) => u.id !== userId));
+    } catch (error) {
+      Alert.alert('Error', 'Failed to delete user.');
+    }
   };
 
   const toggleDarkMode = () => {
@@ -217,6 +259,8 @@ export function AppProvider({ children }) {
 
   const logout = () => {
     setUser(null);
+    setLikedNotes(new Set());
+    setDownloadedNotes(new Set());
   };
 
   return (
@@ -236,6 +280,7 @@ export function AppProvider({ children }) {
         darkMode,
         toggleDarkMode,
         likedNotes,
+        downloadedNotes,
         userActivity,
         getUserUploads,
         login,

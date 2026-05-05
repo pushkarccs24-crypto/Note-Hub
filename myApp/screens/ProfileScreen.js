@@ -19,12 +19,26 @@ export default function ProfileScreen({ navigation }) {
       {
         text: 'Logout',
         onPress: () => {
-          logout();
-          navigation.reset({ index: 0, routes: [{ name: 'RoleSelection' }] });
+          try {
+            logout();
+            if (navigation) {
+              navigation.reset({ index: 0, routes: [{ name: 'RoleSelection' }] });
+            }
+          } catch (error) {
+            Alert.alert('Error', 'Logout failed');
+          }
         },
       },
     ]);
   };
+
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>Please login to view profile</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -37,8 +51,8 @@ export default function ProfileScreen({ navigation }) {
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>👤</Text>
         </View>
-        <Text style={styles.userName}>{user?.name}</Text>
-        <Text style={styles.userEmail}>{user?.email}</Text>
+        <Text style={styles.userName}>{user?.name || 'Guest'}</Text>
+        <Text style={styles.userEmail}>{user?.email || 'guest@notehub.com'}</Text>
         {user?.role === 'admin' && (
           <View style={styles.adminBadge}>
             <Text style={styles.adminBadgeText}>Admin</Text>
@@ -51,17 +65,17 @@ export default function ProfileScreen({ navigation }) {
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
             <Text style={styles.statIcon}>📝</Text>
-            <Text style={styles.statValue}>{userActivity.uploads}</Text>
+            <Text style={styles.statValue}>{userActivity?.uploads || 0}</Text>
             <Text style={styles.statLabel}>Uploaded</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statIcon}>❤️</Text>
-            <Text style={styles.statValue}>{userActivity.likes}</Text>
+            <Text style={styles.statValue}>{userActivity?.likes || 0}</Text>
             <Text style={styles.statLabel}>Liked</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statIcon}>⬇️</Text>
-            <Text style={styles.statValue}>{userActivity.downloads}</Text>
+            <Text style={styles.statValue}>{userActivity?.downloads || 0}</Text>
             <Text style={styles.statLabel}>Downloads</Text>
           </View>
         </View>
@@ -71,7 +85,7 @@ export default function ProfileScreen({ navigation }) {
         <Text style={styles.menuTitle}>Settings</Text>
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => navigation.navigate('AccountSettings')}
+          onPress={() => navigation?.navigate('AccountSettings')}
         >
           <Text style={styles.menuItemIcon}>⚙️</Text>
           <Text style={styles.menuItemText}>Account Settings</Text>
@@ -82,7 +96,7 @@ export default function ProfileScreen({ navigation }) {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => navigation.navigate('MyUploads')}
+          onPress={() => navigation?.navigate('MyUploads')}
         >
           <Text style={styles.menuItemIcon}>📁</Text>
           <Text style={styles.menuItemText}>My Uploads</Text>
@@ -104,6 +118,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  errorText: {
+    fontSize: 16,
+    color: colors.textLight,
+    textAlign: 'center',
+    marginTop: 20,
   },
   header: {
     paddingHorizontal: 16,
