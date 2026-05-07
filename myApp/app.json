@@ -4,26 +4,14 @@
     "slug": "notehub",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
       "supportsTabletMode": false,
       "bundleIdentifier": "com.notehub.app"
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",
-        "backgroundColor": "#ffffff"
-      },
       "package": "com.notehub.app"
     },
-    "web": {
-      "favicon": "./assets/icon.png"
-    }
+    "web": {}
   }
 }
