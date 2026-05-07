@@ -8,7 +8,6 @@
     "scheme": "notehub",
     "runtimeVersion": "1.0.0",
     "ios": {
-      "supportsTabletMode": false,
       "bundleIdentifier": "com.notehub.app"
     },
     "android": {
